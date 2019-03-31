@@ -1,4 +1,4 @@
-package org.middlesoft.shiro.conf;
+package org.middlesoft.shiro.config;
 
 import com.alibaba.fastjson.JSONObject;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,6 +30,7 @@ public class UserRealm extends AuthorizingRealm {
 
     /**
      * 认证
+     *
      * @param token
      * @return
      * @throws AuthenticationException
@@ -37,19 +38,20 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         String userName = (String) token.getPrincipal();
-        QSysUserDto qu  = QSysUserDto.sysUserDto;
+        QSysUserDto qu = QSysUserDto.sysUserDto;
         SysUserDto user = queryFactory.select(qu).from(qu).where(qu.username.eq(userName)).fetchOne();
-        if(user == null){
+        if (user == null) {
             throw new UnknownAccountException();
         }
-        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user.getUsername(),user.getPassword(),getName());
+        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user.getUsername(), user.getPassword(), getName());
         user.setPassword(null);
-        SecurityUtils.getSubject().getSession().setAttribute(Constants.SESSION_USER_INFO,JSONObject.toJSON(user));
+        SecurityUtils.getSubject().getSession().setAttribute(Constants.SESSION_USER_INFO, JSONObject.toJSON(user));
         return authenticationInfo;
     }
 
     /**
      * 授权
+     *
      * @param principal
      * @return
      */
@@ -57,14 +59,13 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principal) {
         Session session = SecurityUtils.getSubject().getSession();
         //查询用户的权限
-        JSONObject userInfo = (JSONObject) session.getAttribute(Constants.SESSION_USER_INFO);
-        log.info("permission的值为：{}",userInfo);
-        log.info("本用户的权限为：{}",userInfo.get("permissionList"));
+        JSONObject permission = (JSONObject) session.getAttribute(Constants.SESSION_USER_PERMISSION);
+        log.info("permission的值为：{}", permission);
+        log.info("本用户的权限为：{}", permission.get("permissionList"));
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        authorizationInfo.addStringPermissions((List)userInfo.get("permissionList"));
+        authorizationInfo.addStringPermissions((List) permission.get("permissionList"));
         return authorizationInfo;
     }
-
 
 
 }

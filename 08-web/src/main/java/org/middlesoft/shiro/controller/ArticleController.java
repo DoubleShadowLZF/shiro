@@ -50,7 +50,4 @@ public class ArticleController {
         return UiResult.ok(edit);
     }
 
-
-
-
 }

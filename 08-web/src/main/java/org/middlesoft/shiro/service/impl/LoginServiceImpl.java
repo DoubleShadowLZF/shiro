@@ -48,7 +48,7 @@ public class LoginServiceImpl implements LoginService {
         String userName = (String) userInfo.get("username");
         //获取用户权限
         JSONObject userPermission = permissionService.getUserPermission(userName);
-        session.setAttribute(Constants.SESSION_USER_INFO,userPermission);
+        session.setAttribute(Constants.SESSION_USER_PERMISSION,userPermission);
         JSONObject result = new JSONObject();
         result.put("userPermission",userPermission);
         return UiResult.ok(result);

@@ -1,12 +1,15 @@
-package org.middlesoft.shiro.conf;
+package org.middlesoft.shiro.config;
 
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.middlesoft.shiro.filter.PermissionFilter;
+import org.middlesoft.shiro.filter.UserFilter;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.servlet.Filter;
 import java.util.LinkedHashMap;
@@ -63,7 +66,7 @@ public class ShiroConfig {
          */
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String, Filter> filterMap = new LinkedHashMap<>();
-        filterMap.put("authc", new PermissionFilter());
+        filterMap.put("authc", new UserFilter());
         shiroFilterFactoryBean.setFilters(filterMap);
         /**
          * 过滤链,
@@ -82,5 +85,26 @@ public class ShiroConfig {
         return shiroFilterFactoryBean;
     }
 
+    /**
+     * 开启Shiro注解（如@RequestRoles,@RequiresPermissions）,需借助SpringAOP扫描使用Shiro注解的类，
+     * 并在必要的时进行安全逻辑验证，皮遏制一下两个bean（DefaultAdvisorAutoProxyCreator（可选）和
+     * AuthorizationAttributeSourceAdvisor）即可实现此功能。
+     * @return
+     */
+    @Bean
+    @DependsOn({"lifecycleBeanPostProcessor"})
+    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator(){
+        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
+        advisorAutoProxyCreator.setProxyTargetClass(true);
+        return advisorAutoProxyCreator;
+    }
 
+    /**
+     * Shiro 生命周期处理器
+     * @return
+     */
+    @Bean
+    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor(){
+        return new LifecycleBeanPostProcessor();
+    }
 }

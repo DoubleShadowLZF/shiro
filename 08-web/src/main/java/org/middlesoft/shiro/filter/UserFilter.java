@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PermissionFilter extends FormAuthenticationFilter {
+public class UserFilter extends FormAuthenticationFilter {
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         Map<String,Object> json = new HashMap<>();
@@ -39,7 +39,7 @@ public class PermissionFilter extends FormAuthenticationFilter {
     }
 
     @Bean
-    public FilterRegistrationBean registration(PermissionFilter filter){
+    public FilterRegistrationBean registration(UserFilter filter){
         FilterRegistrationBean registration = new FilterRegistrationBean(filter);
         registration.setEnabled(false);
         return registration;
