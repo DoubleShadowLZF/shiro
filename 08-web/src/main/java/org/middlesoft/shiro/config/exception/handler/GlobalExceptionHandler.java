@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.middlesoft.shiro.config.exception.SystemException;
 import org.middlesoft.shiro.entity.ErrorEnum;
 import org.middlesoft.shiro.entity.UiResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -12,6 +11,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * 全局异常处理，
+ * 主要是针对shiro的异常统一进行处理
+ */
 @ControllerAdvice
 @ResponseBody
 @Slf4j
@@ -70,16 +73,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthenticatedException.class)
     public UiResult unauthenticatedException(){
         return UiResult.getInstance(ErrorEnum.E_4011.getErrorCode(),ErrorEnum.E_4011.getErrorMessage());
-    }
-
-    /**
-     * 系统统一处理异常
-     * @param e 系统自定义的异常
-     * @return
-     */
-    @ExceptionHandler(SystemException.class)
-    public UiResult systemException(SystemException e){
-        return UiResult.getInstance(e.getCode(),e.getMessage());
     }
 
 }

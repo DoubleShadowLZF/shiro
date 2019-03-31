@@ -12,7 +12,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.middlesoft.shiro.entity.dto.QSysUserDto;
 import org.middlesoft.shiro.entity.dto.SysUserDto;
-import org.middlesoft.shiro.system.Constants;
+import org.middlesoft.shiro.system.SystemCode;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class UserRealm extends AuthorizingRealm {
         }
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user.getUsername(), user.getPassword(), getName());
         user.setPassword(null);
-        SecurityUtils.getSubject().getSession().setAttribute(Constants.SESSION_USER_INFO, JSONObject.toJSON(user));
+        SecurityUtils.getSubject().getSession().setAttribute(SystemCode.SESSION_USER_INFO, JSONObject.toJSON(user));
         return authenticationInfo;
     }
 
@@ -59,7 +59,7 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principal) {
         Session session = SecurityUtils.getSubject().getSession();
         //查询用户的权限
-        JSONObject permission = (JSONObject) session.getAttribute(Constants.SESSION_USER_PERMISSION);
+        JSONObject permission = (JSONObject) session.getAttribute(SystemCode.SESSION_USER_PERMISSION);
         log.info("permission的值为：{}", permission);
         log.info("本用户的权限为：{}", permission.get("permissionList"));
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();

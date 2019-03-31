@@ -10,7 +10,7 @@ import org.middlesoft.shiro.entity.UiResult;
 import org.middlesoft.shiro.entity.qo.UserQo;
 import org.middlesoft.shiro.service.LoginService;
 import org.middlesoft.shiro.service.PermissionService;
-import org.middlesoft.shiro.system.Constants;
+import org.middlesoft.shiro.system.SystemCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,11 +44,11 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public UiResult getInfo() {
         Session session = SecurityUtils.getSubject().getSession();
-        JSONObject userInfo = (JSONObject) session.getAttribute(Constants.SESSION_USER_INFO);
+        JSONObject userInfo = (JSONObject) session.getAttribute(SystemCode.SESSION_USER_INFO);
         String userName = (String) userInfo.get("username");
         //获取用户权限
         JSONObject userPermission = permissionService.getUserPermission(userName);
-        session.setAttribute(Constants.SESSION_USER_PERMISSION,userPermission);
+        session.setAttribute(SystemCode.SESSION_USER_PERMISSION,userPermission);
         JSONObject result = new JSONObject();
         result.put("userPermission",userPermission);
         return UiResult.ok(result);

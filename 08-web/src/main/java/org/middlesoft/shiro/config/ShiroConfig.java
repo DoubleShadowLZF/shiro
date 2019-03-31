@@ -3,6 +3,7 @@ package org.middlesoft.shiro.config;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.middlesoft.shiro.filter.UserFilter;
@@ -37,13 +38,12 @@ public class ShiroConfig {
      * shiro核心类，
      * 管理认证和授权等核心功能
      *
-     * @param realm
      * @return
      */
     @Bean("securityManager")
-    public SecurityManager securityManager(AuthorizingRealm realm) {
+    public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(realm);
+        securityManager.setRealm(userRealm());
         return securityManager;
     }
 
@@ -70,6 +70,7 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setFilters(filterMap);
         /**
          * 过滤链,
+         * Map中key(xml中是指value值)的第一个'/'代表的路径是相对于HttpServletRequest.getContextPath()的值来的
          * 从上自下执行，一般讲 “/**”放在最为下边：对有所请求都生效；
          * authc：所有url都必须认证通过才可以访问；
          * anon：所有url都可以匿名访问
@@ -97,6 +98,17 @@ public class ShiroConfig {
         DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
         advisorAutoProxyCreator.setProxyTargetClass(true);
         return advisorAutoProxyCreator;
+    }
+
+    /**
+     * 注解支持需要该类
+     * @return
+     */
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(){
+        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+        advisor.setSecurityManager(securityManager());
+        return advisor;
     }
 
     /**
