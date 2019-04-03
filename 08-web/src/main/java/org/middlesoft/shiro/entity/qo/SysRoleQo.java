@@ -3,6 +3,8 @@ package org.middlesoft.shiro.entity.qo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 
 /**
  * the entity class of sys_role
@@ -27,4 +29,6 @@ public class SysRoleQo {
      */
     private String deleteStatus;
 
+    private Long roleId;
+    private List permissions;
 }

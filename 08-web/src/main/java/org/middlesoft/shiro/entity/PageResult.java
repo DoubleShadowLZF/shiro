@@ -24,9 +24,7 @@ public class PageResult extends UiResult{
         private List<?> list;
     }
 
-
-
-    public static UiResult ok(int totalPage,int totalCount,List list){
+    public static PageResult ok(int totalPage,int totalCount,List list){
 
         InfoBean info = new InfoBean();
         info.setTotalPage(totalPage);

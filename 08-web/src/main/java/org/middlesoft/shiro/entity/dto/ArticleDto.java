@@ -41,6 +41,6 @@ public class ArticleDto {
     /**
      * 是否有效  1.有效  2无效
      */
-    private String deleteStatus;
+    private String deleteStatus="1";
 
 }

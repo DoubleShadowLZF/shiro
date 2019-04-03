@@ -17,8 +17,7 @@ public interface SysRoleRepository extends PagingAndSortingRepository<SysRoleDto
 
 	default Specification<SysRoleDto> where(SysRoleQo qo) {
 		return ((root, query, cb) -> {
-			Predicate where = null;
-			where = cb.and(cb.equal(root.get("isDeleted"),0));
+			Predicate where  = cb.and(cb.equal(root.get("deleteStatus"),"1"));
 
 			if(qo.getId() != null){
 				where = cb.and(where,cb.equal(root.get("id"),qo.getId()));

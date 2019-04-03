@@ -3,9 +3,7 @@ package org.middlesoft.shiro.entity.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * the entity class of sys_role_permission
@@ -17,6 +15,8 @@ import javax.persistence.Table;
 public class SysRolePermissionDto {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(insertable = false,updatable = false)
     private Long id;
 
     /**
@@ -29,13 +29,15 @@ public class SysRolePermissionDto {
      */
     private Long permissionId;
 
+    @Column(insertable = false,updatable = false)
     private java.sql.Timestamp createTime;
 
+    @Column(insertable = false,updatable = false)
     private java.sql.Timestamp updateTime;
 
     /**
      * 是否有效 1有效     2无效
      */
-    private String deleteStatus;
+    private String deleteStatus="1";
 
 }

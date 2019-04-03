@@ -9,9 +9,11 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class SysUserQo {
+public class SysUserQo extends PageQo {
 
     private Long id;
+
+    private Long userId;
 
     /**
      * 用户名

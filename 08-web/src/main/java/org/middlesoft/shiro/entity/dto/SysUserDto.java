@@ -3,6 +3,7 @@ package org.middlesoft.shiro.entity.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,6 +18,7 @@ import javax.persistence.Table;
 public class SysUserDto {
 
     @Id
+    @Column(insertable = false,updatable = false)
     private Long id;
 
     /**
@@ -42,16 +44,18 @@ public class SysUserDto {
     /**
      * 创建时间
      */
+    @Column(insertable = false,updatable = false)
     private java.sql.Timestamp createTime;
 
     /**
      * 修改时间
      */
+    @Column(insertable = false,updatable = false)
     private java.sql.Timestamp updateTime;
 
     /**
      * 是否有效  1有效  2无效
      */
-    private String deleteStatus;
+    private String deleteStatus="1";
 
 }

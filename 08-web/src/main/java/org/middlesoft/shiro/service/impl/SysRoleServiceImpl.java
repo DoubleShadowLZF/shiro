@@ -1,9 +1,12 @@
 package org.middlesoft.shiro.service.impl;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.middlesoft.shiro.entity.dto.QSysRoleDto;
 import org.middlesoft.shiro.entity.qo.SysRoleQo;
 import org.middlesoft.shiro.entity.dto.SysRoleDto;
 import org.middlesoft.shiro.dao.SysRoleRepository;
 import org.middlesoft.shiro.service.SysRoleService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +19,26 @@ public class SysRoleServiceImpl implements SysRoleService {
     @Autowired
     private SysRoleRepository sysRoleRepository;
 
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
     /**
      * insert a item 
      * 
     */
-    public int add(SysRoleQo item){
-    return 0;
+    public SysRoleDto add(SysRoleQo item){
+        SysRoleDto sysRoleDto = new SysRoleDto();
+        BeanUtils.copyProperties(item,sysRoleDto);
+        return sysRoleRepository.save(sysRoleDto);
     }
 
     /**
      * delete a item 
      * 
     */
-    public int delete(SysRoleQo item){
-    return 0;
+    public long delete(SysRoleQo item){
+        QSysRoleDto qr = QSysRoleDto.sysRoleDto;
+        return queryFactory.delete(qr).where(qr.id.eq(item.getId())).execute();
     }
 
     /**

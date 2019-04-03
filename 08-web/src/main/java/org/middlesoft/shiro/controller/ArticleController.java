@@ -43,7 +43,7 @@ public class ArticleController {
      * @param where
      * @return
      */
-    @RequiresPermissions("article:updat")
+    @RequiresPermissions("article:update")
     @PostMapping("updateArticle")
     public Object updateArticle(@RequestBody ArticleQo where){
         long edit = articleService.edit(where);

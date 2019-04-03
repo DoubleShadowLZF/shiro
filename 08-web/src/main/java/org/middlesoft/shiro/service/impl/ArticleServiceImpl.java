@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- *
  * @link https://www.jianshu.com/p/69dcb1b85bbb
  */
 @Service
@@ -39,12 +38,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public UiResult add(ArticleQo item) {
         ArticleDto articleDto = new ArticleDto();
-        BeanUtils.copyProperties(item,articleDto);
+        BeanUtils.copyProperties(item, articleDto);
         articleDto.setDeleteStatus(String.valueOf(1));
         ArticleDto save = articleRepository.save(articleDto);
-        if(save != null){
+        if (save != null) {
             return UiResult.ok();
-        }else{
+        } else {
             return UiResult.fail();
         }
     }
@@ -56,7 +55,7 @@ public class ArticleServiceImpl implements ArticleService {
     public long delete(ArticleQo item) {
         QArticleDto qa = QArticleDto.articleDto;
         long id = queryFactory.delete(qa).where(qa.id.eq(item.getId())).execute();
-        log.debug("id:{}",id);
+        log.debug("id:{}", id);
         return id;
     }
 
@@ -87,7 +86,10 @@ public class ArticleServiceImpl implements ArticleService {
 //        List<ArticleDto> list = query.offset(where.getPageNum()).limit(where.getPageRow()).fetch();
         //写法二：
         //执行了两条语句，一条是查询总数，一条是查询分页信息
-        QueryResults<ArticleDto> queryResults = queryFactory.selectFrom(qa).orderBy(qa.createTime.asc()).offset(where.getPageNum()).limit(where.getPageRow()).fetchResults();
+        Integer pageRow = where.getPageRow();
+        Integer pageNum = where.getPageNum();
+        Integer offset = (pageNum - 1) * pageRow;
+        QueryResults<ArticleDto> queryResults = queryFactory.selectFrom(qa).orderBy(qa.createTime.asc()).offset(offset).limit(where.getPageRow()).fetchResults();
         log.debug("total:{}", queryResults.getTotal());
         log.debug("limit:{}", queryResults.getLimit());
         log.debug("offset:{}", queryResults.getOffset());

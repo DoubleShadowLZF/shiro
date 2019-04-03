@@ -13,14 +13,14 @@ public interface SysRoleService {
      * insert a item 
      * 
     */
-    int add(SysRoleQo item);
+    SysRoleDto add(SysRoleQo item);
 
 
     /**
      * delete a item 
      * 
     */
-    int delete(SysRoleQo item);
+    long delete(SysRoleQo item);
 
 
     /**
