@@ -19,6 +19,7 @@ import org.middlesoft.shiro.entity.qo.SysRoleQo;
 import org.middlesoft.shiro.entity.qo.SysUserQo;
 import org.middlesoft.shiro.dao.SysUserRepository;
 import org.middlesoft.shiro.service.SysUserService;
+import org.middlesoft.shiro.util.Sort;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -248,56 +249,24 @@ public class SysUserServiceImpl implements SysUserService {
             whereRolePermission.setRoleId(query.getRoleId());
             List<SysRolePermissionDto> rolePermissions = rolePermissionRepository.findAll(rolePermissionRepository.where(whereRolePermission));
 
-
-
-            Collections.sort(rolePermissions, (o1, o2) ->
+            /*Collections.sort(rolePermissions, (o1, o2) ->
                     o1.getPermissionId() > o2.getPermissionId() ? 1 : -1
             );
             Collections.sort(permissions, (o1, o2) ->
-                    o1 > o2 ? 1 : -1);
+                    o1 > o2 ? 1 : -1);*/
 
-            List logPermission = new ArrayList();
+            /*List logPermission = new ArrayList();
             for (int i = 0; i < rolePermissions.size(); i++) {
                 logPermission.add(rolePermissions.get(i).getPermissionId());
             }
             log.debug("添加的全部权限：{}", permissions);
-            log.debug("查询到的全部数据：{}", logPermission);
+            log.debug("查询到的全部数据：{}", logPermission);*/
 
-            for (int i = 0, j = 0; i < rolePermissions.size() || j < permissions.size(); ) {
-                if(rolePermissions.size() == 0 || permissions.size() ==0){
-                    break;
-                }
-                Long rp1 =  rolePermissions.get(i).getPermissionId();
-                Integer rp2 = permissions.get(j);
-                log.debug("rp1:{},rp2:{}",rp1,rp2);
-                if (rp1 > rp2) {
-                    if (j + 1 != permissions.size()) {
-                        j++;
-                    } else if (i + 1 != rolePermissions.size()) {
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if (rp1 < rp2) {
-                    if (i + 1 != rolePermissions.size()) {
-                        i++;
-                    } else if (j + 1 != permissions.size()) {
-                        j++;
-                    } else {
-                        break;
-                    }
-                } else {
-                    rolePermissions.remove(i);
-                    if (i == rolePermissions.size() && rolePermissions.size() > 0) {
-                        i--;
-                    }
-                    permissions.remove(j);
-                    if (j == permissions.size() && permissions.size() > 0) {
-                        j--;
-                    }
-                }
-            }
-            logPermission = new ArrayList();
+            Sort<SysRolePermissionDto> sort = new Sort<>();
+            sort.removeSameObject(permissions,rolePermissions,"permissionId",(o1, o2) ->
+                    o1.getPermissionId() > o2.getPermissionId() ? 1 : -1);
+
+            List logPermission = new ArrayList();
             for (int i = 0; i < rolePermissions.size(); i++) {
                 logPermission.add(rolePermissions.get(i).getPermissionId());
             }
