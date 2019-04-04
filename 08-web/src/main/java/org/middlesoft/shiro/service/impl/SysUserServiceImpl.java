@@ -13,6 +13,8 @@ import org.middlesoft.shiro.dao.SysRoleRepository;
 import org.middlesoft.shiro.entity.PageResult;
 import org.middlesoft.shiro.entity.UiResult;
 import org.middlesoft.shiro.entity.dto.*;
+import org.middlesoft.shiro.entity.qo.ArticleQo;
+import org.middlesoft.shiro.entity.qo.SysRolePermissionQo;
 import org.middlesoft.shiro.entity.qo.SysRoleQo;
 import org.middlesoft.shiro.entity.qo.SysUserQo;
 import org.middlesoft.shiro.dao.SysUserRepository;
@@ -151,7 +153,7 @@ public class SysUserServiceImpl implements SysUserService {
         List retList = new ArrayList();
         for (SysRoleDto role : roles) {
             List menuList = new ArrayList();
-            Map<String,Object> menuNameMap = new HashMap<>();
+            Map<String, Object> menuNameMap = new HashMap<>();
             Map item = new HashMap();
             item.put("roleId", role.getId());
             item.put("roleName", role.getRoleName());
@@ -165,7 +167,7 @@ public class SysUserServiceImpl implements SysUserService {
                 SysPermissionDto permission = queryFactory.select(qp).from(qp).where(qp.id.eq(permissionId)).orderBy(qp.menuName.asc()).fetchOne();
                 log.debug("permission:{}", JSONObject.toJSON(permission));
                 Object cache = menuNameMap.get(permission.getMenuName());
-                if(cache == null){
+                if (cache == null) {
                     List permissionsList = new ArrayList();
                     Map permissionMap = new HashMap();
                     permissionMap.put("permissionId", permission.getId());
@@ -178,8 +180,8 @@ public class SysUserServiceImpl implements SysUserService {
                     menusMap.put("menuName", menuName);
                     menusMap.put("permissions", permissionsList);
                     menuList.add(menusMap);
-                    menuNameMap.put(menuName,menusMap);
-                }else{
+                    menuNameMap.put(menuName, menusMap);
+                } else {
                     Map cacheMap = (Map) cache;
                     List permissions = (List) cacheMap.get("permissions");
                     Map permissionMap = new HashMap();
@@ -233,16 +235,85 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysRoleDto addRole(SysRoleQo query) {
+        Boolean isUpdate = query.getRoleId() != null ? true : false;
         List<Integer> permissions = query.getPermissions();
         SysRoleDto sysRoleDto = new SysRoleDto();
         BeanUtils.copyProperties(query, sysRoleDto);
         sysRoleDto.setDeleteStatus("1");
         SysRoleDto save = roleRepository.save(sysRoleDto);
         Long roleId = save.getId();
+        //修改操作
+        if (isUpdate) {
+            SysRolePermissionQo whereRolePermission = new SysRolePermissionQo();
+            whereRolePermission.setRoleId(query.getRoleId());
+            List<SysRolePermissionDto> rolePermissions = rolePermissionRepository.findAll(rolePermissionRepository.where(whereRolePermission));
+
+
+
+            Collections.sort(rolePermissions, (o1, o2) ->
+                    o1.getPermissionId() > o2.getPermissionId() ? 1 : -1
+            );
+            Collections.sort(permissions, (o1, o2) ->
+                    o1 > o2 ? 1 : -1);
+
+            List logPermission = new ArrayList();
+            for (int i = 0; i < rolePermissions.size(); i++) {
+                logPermission.add(rolePermissions.get(i).getPermissionId());
+            }
+            log.debug("添加的全部权限：{}", permissions);
+            log.debug("查询到的全部数据：{}", logPermission);
+
+            for (int i = 0, j = 0; i < rolePermissions.size() || j < permissions.size(); ) {
+                if(rolePermissions.size() == 0 || permissions.size() ==0){
+                    break;
+                }
+                Long rp1 =  rolePermissions.get(i).getPermissionId();
+                Integer rp2 = permissions.get(j);
+                log.debug("rp1:{},rp2:{}",rp1,rp2);
+                if (rp1 > rp2) {
+                    if (j + 1 != permissions.size()) {
+                        j++;
+                    } else if (i + 1 != rolePermissions.size()) {
+                        i++;
+                    } else {
+                        break;
+                    }
+                } else if (rp1 < rp2) {
+                    if (i + 1 != rolePermissions.size()) {
+                        i++;
+                    } else if (j + 1 != permissions.size()) {
+                        j++;
+                    } else {
+                        break;
+                    }
+                } else {
+                    rolePermissions.remove(i);
+                    if (i == rolePermissions.size() && rolePermissions.size() > 0) {
+                        i--;
+                    }
+                    permissions.remove(j);
+                    if (j == permissions.size() && permissions.size() > 0) {
+                        j--;
+                    }
+                }
+            }
+            logPermission = new ArrayList();
+            for (int i = 0; i < rolePermissions.size(); i++) {
+                logPermission.add(rolePermissions.get(i).getPermissionId());
+            }
+            log.debug("去重后的查询到的permission：{}", logPermission);
+            log.debug("去重后的新增的permission:{}", permissions);
+            for (SysRolePermissionDto rolePermissionDto:rolePermissions) {
+                rolePermissionDto.setDeleteStatus("2");
+                rolePermissionRepository.save(rolePermissionDto);
+            }
+        }
+        //新增操作
         for (Integer permissionId : permissions) {
+            //修改操作中，可能存在已添加的权限编码
             SysRolePermissionDto rolePermissionDto = new SysRolePermissionDto();
             boolean b = permissionRepository.existsById(Long.valueOf(permissionId + ""));
-            if(!b) continue;
+            if (!b) continue;
             rolePermissionDto.setRoleId(roleId).setPermissionId(Long.valueOf(String.valueOf(permissionId))).setDeleteStatus("1");
             rolePermissionRepository.save(rolePermissionDto);
         }

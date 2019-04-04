@@ -18,11 +18,20 @@ public interface SysRolePermissionRepository extends PagingAndSortingRepository<
 	default Specification<SysRolePermissionDto> where(SysRolePermissionQo qo) {
 		return ((root, query, cb) -> {
 			Predicate where = null;
-			where = cb.and(cb.equal(root.get("isDeleted"),0));
+			where = cb.and(cb.equal(root.get("deleteStatus"),"1"));
 
 			if(qo.getId() != null){
 				where = cb.and(where,cb.equal(root.get("id"),qo.getId()));
 			}
+
+			if(qo.getPermissionId() != null){
+				where = cb.and(where,cb.equal(root.get("permissionId"),qo.getPermissionId()));
+			}
+
+			if(qo.getRoleId() != null){
+				where = cb.and(where,cb.equal(root.get("roleId"),qo.getRoleId()));
+			}
+
 			return query.where(where).getRestriction();
 		});
 	}
